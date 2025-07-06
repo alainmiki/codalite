@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codalite Solutions: Interactive Project Roadmap</title>
+    <!-- Chosen Palette: Harmonious Neutrals with Purple/Cyan Accents -->
+    <!-- Application Structure Plan: A tab-based SPA dashboard design was chosen to transform the linear project plan into an interactive, explorable experience. This structure allows users to easily navigate between development phases without overwhelming them with a long document. The dashboard includes summary charts for a high-level overview and feature cards with on-demand modals for detailed information. This approach enhances usability and makes the complex project plan much easier to understand and digest. -->
+    <!-- Visualization & Content Choices: 
+        - Overall Plan -> Goal: Organize -> Viz: Tabbed Dashboard -> Interaction: Click tabs to switch phase views. Justification: Breaks a long document into focused, manageable sections.
+        - Features List -> Goal: Inform -> Viz: Grid of Feature Cards -> Interaction: Click for modal with details. Justification: Provides a clean overview of each phase's scope, with deep-dive information available on demand.
+        - Feature Distribution -> Goal: Compare -> Viz: Donut Chart (Chart.js/Canvas) -> Interaction: Hover tooltips. Justification: Gives a quick visual sense of the workload in each phase.
+        - Feature Types -> Goal: Compare -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Hover tooltips. Justification: Highlights the project's strategic focus over time (e.g., core site vs. LMS features).
+        -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .active-tab {
+            background-color: #9933FF; /* Primary Purple */
+            color: white;
+        }
+        .inactive-tab {
+            background-color: white;
+            color: #4b5563; /* gray-600 */
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Modal Structure -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div id="modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="sticky top-0 bg-white p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-gray-900"></h3>
+                <button id="modal-close" class="text-gray-500 hover:text-gray-800 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modal-body" class="p-4 sm:p-6 space-y-4 text-gray-700 leading-relaxed">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">Codalite Solutions</h1>
+            <p class="text-lg text-gray-600 mt-2">Interactive Project Roadmap</p>
+        </header>
+
+        <!-- High-Level Analytics -->
+        <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
+             <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Project at a Glance</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="chart-container">
+                    <canvas id="featuresPerPhaseChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="featureTypeChart"></canvas>
+                </div>
+             </div>
+        </section>
+
+
+        <!-- Roadmap Section -->
+        <main class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Development Phases</h2>
+            
+            <!-- Phase Navigation -->
+            <div id="phase-nav" class="flex flex-wrap justify-center gap-2 mb-6">
+                <!-- Tabs will be dynamically inserted here -->
+            </div>
+
+            <!-- Phase Content -->
+            <div id="phase-content" class="transition-opacity duration-500">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </main>
+        
+        <footer class="text-center mt-8 text-sm text-gray-500">
+            <p>&copy; 2025 Codalite Solutions. This is an interactive representation of the project plan.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const projectData = {
+            phases: [
+                {
+                    title: "Phase 0: Foundational Setup",
+                    objective: "Establish the core Django project, configure essential settings, and create the base templating system.",
+                    features: [
+                        { title: "Django Project Initialization", details: "Create project `codalite_project` with apps `core`, `services`, `training`, `accounts`. Configure `settings.py` for PostgreSQL, static/media files (local dev/Cloudflare R2 prod), security settings, and Tailwind integration." },
+                        { title: "Base Template (base.html)", details: "Create a responsive base template including CDN links for Tailwind, Alpine.js, HTMX. Implement a responsive header with logo and navigation, a content block, and a footer. Use the specified color palette and Inter font." }
+                    ],
+                    type: "Setup"
+                },
+                {
+                    title: "Phase 1: MVP",
+                    objective: "Launch a foundational website to establish online presence and capture basic leads.",
+                    features: [
+                        { title: "Homepage", details: "Create Django view and URL. Template to include a hero section, services overview, key differentiators, testimonials placeholder, and a final CTA." },
+                        { title: "Contact Us Page", details: "Create Django form, view, and URL. Implement HTMX for form submission without page reload, showing success/error messages." },
+                        { title: "Basic Services Pages", details: "Create views and templates for IT Consultancy and Software Development overview pages with brief descriptions and a CTA." },
+                        { title: "Basic Training Overview", details: "Create `Course` model and a catalog page to display a list of dummy courses from the Django admin." },
+                        { title: "About Us Page", details: "Create a simple page with placeholders for 'Our Story' and 'Team'." },
+                        { title: "Blog (Basic)", details: "Create `blog` app with `Post` model. Implement list and detail views and templates." }
+                    ],
+                    type: "Core Site"
+                },
+                {
+                    title: "Phase 2: Enhanced Marketing",
+                    objective: "Improve lead capture and showcase expertise.",
+                    features: [
+                        { title: "Detailed Service Pages with Case Studies", details: "Create `CaseStudy` model and link it to services. Update service pages to display relevant case studies." },
+                        { title: "Interactive 'Problem Solver' Tool", details: "Create a multi-step questionnaire using HTMX/Alpine.js to guide users and capture leads." },
+                        { title: "Resource Library", details: "Create a `Resource` model. Display downloadable assets with an email capture form using HTMX." },
+                        { title: "Newsletter Subscription", details: "Create a `NewsletterSubscriber` model and a simple signup form in the footer using HTMX." },
+                        { title: "Live Chat / Chatbot Integration", details: "Integrate a third-party live chat widget on the frontend." }
+                    ],
+                    type: "Marketing"
+                },
+                {
+                    title: "Phase 3: Online Learning Platform (LMS)",
+                    objective: "Enable online course delivery and management.",
+                    features: [
+                        { title: "User Authentication & Profiles", details: "Implement robust user registration, login, password reset, and profile management using Django's auth system." },
+                        { title: "Full Course Detail Pages", details: "Enhance `Course` model with more fields. Design comprehensive course pages with an 'Enroll Now' button." },
+                        { title: "Payment Gateway Integration", details: "Integrate Stripe/PayPal for secure payments. Create `Enrollment` model." },
+                        { title: "Student Dashboard", details: "Create a personalized dashboard for authenticated users to see their enrolled courses and progress." },
+                        { title: "Course Content Delivery", details: "Create models for `Module`, `Lesson`, `ContentItem`. Design interfaces for viewing course content." },
+                        { title: "Interactive Quizzes", details: "Create models for quizzes, questions, and answers. Use HTMX/Alpine.js for a dynamic quiz experience." },
+                        { title: "Progress Tracking", details: "Implement logic and models to track student progress through courses and quizzes." },
+                        { title: "Certificate Generation", details: "Implement a mechanism (using Celery) to generate PDF certificates upon course completion." },
+                        { title: "Discussion Forums", details: "Create models and templates for basic discussion forums within courses." }
+                    ],
+                    type: "LMS"
+                },
+                {
+                    title: "Phase 4: Continuous Improvement",
+                    objective: "Refine existing features and introduce advanced functionalities.",
+                    features: [
+                        { title: "Advanced LMS Features", details: "Implement assignment submission and grading. Integrate with a video conferencing API for live sessions." },
+                        { title: "Personalized Content Recommendations", details: "Implement basic logic to recommend courses or blog posts based on user activity." },
+                        { title: "Career Opportunities / Job Board", details: "Create a `JobPosting` model and a careers page with an application form." },
+                        { title: "Client Portal (Future)", details: "A secure, authenticated area for business clients to view project progress." }
+                    ],
+                    type: "Advanced"
+                }
+            ]
+        };
+
+        let currentPhaseIndex = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
+            renderPhase(currentPhaseIndex);
+            setupModal();
+            createFeaturesPerPhaseChart();
+            createFeatureTypeChart();
+        });
+
+        function setupNavigation() {
+            const navContainer = document.getElementById('phase-nav');
+            projectData.phases.forEach((phase, index) => {
+                const button = document.createElement('button');
+                button.textContent = phase.title;
+                button.className = `px-4 py-2 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 ${index === currentPhaseIndex ? 'active-tab' : 'inactive-tab hover:bg-gray-100'}`;
+                button.onclick = () => {
+                    currentPhaseIndex = index;
+                    updateActiveTab();
+                    renderPhase(index);
+                };
+                navContainer.appendChild(button);
+            });
+        }
+        
+        function updateActiveTab() {
+            const buttons = document.querySelectorAll('#phase-nav button');
+            buttons.forEach((button, index) => {
+                button.className = `px-4 py-2 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 ${index === currentPhaseIndex ? 'active-tab' : 'inactive-tab hover:bg-gray-100'}`;
+            });
+        }
+
+        function renderPhase(index) {
+            const phase = projectData.phases[index];
+            const contentContainer = document.getElementById('phase-content');
+            
+            contentContainer.style.opacity = 0;
+
+            setTimeout(() => {
+                let contentHtml = `
+                    <div class="text-center mb-6 border-b pb-4">
+                        <h3 class="text-2xl font-bold text-gray-800">${phase.title}</h3>
+                        <p class="text-md text-gray-600 mt-1">${phase.objective}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                `;
+
+                phase.features.forEach(feature => {
+                    contentHtml += `
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between hover:shadow-lg transition-shadow duration-300">
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-900">${feature.title}</h4>
+                                <div class="flex items-center mt-2 gap-2">
+                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-200">
+                                        ${phase.type}
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="details-btn mt-4 text-left text-sm font-semibold text-purple-600 hover:text-purple-800 transition-colors" data-phase-index="${index}" data-feature-title="${feature.title}">
+                                View Details &rarr;
+                            </button>
+                        </div>
+                    `;
+                });
+
+                contentHtml += `</div>`;
+                contentContainer.innerHTML = contentHtml;
+                contentContainer.style.opacity = 1;
+                setupDetailButtons();
+            }, 200);
+        }
+        
+        function setupDetailButtons() {
+            document.querySelectorAll('.details-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const phaseIndex = e.currentTarget.dataset.phaseIndex;
+                    const featureTitle = e.currentTarget.dataset.featureTitle;
+                    const feature = projectData.phases[phaseIndex].features.find(f => f.title === featureTitle);
+                    showModal(feature);
+                };
+            });
+        }
+
+        function setupModal() {
+            const modal = document.getElementById('modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalContent = document.getElementById('modal-content');
+
+            modalClose.onclick = () => hideModal();
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            };
+        }
+        
+        function showModal(feature) {
+            document.getElementById('modal-title').textContent = feature.title;
+            document.getElementById('modal-body').textContent = feature.details;
+            const modal = document.getElementById('modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                document.getElementById('modal-content').style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('modal');
+            modal.style.opacity = '0';
+            document.getElementById('modal-content').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function createFeaturesPerPhaseChart() {
+            const ctx = document.getElementById('featuresPerPhaseChart').getContext('2d');
+            const labels = projectData.phases.map(p => p.title.replace("Phase ", "P"));
+            const data = projectData.phases.map(p => p.features.length);
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Features per Phase',
+                        data: data,
+                        backgroundColor: [
+                            '#d8b4fe', // purple-300
+                            '#a78bfa', // purple-400
+                            '#8b5cf6', // purple-500
+                            '#7c3aed', // purple-600
+                            '#6d28d9'  // purple-700
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                             labels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Features per Phase',
+                            font: { size: 16 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createFeatureTypeChart() {
+            const ctx = document.getElementById('featureTypeChart').getContext('2d');
+            const featureTypes = {};
+            projectData.phases.forEach(phase => {
+                if (!featureTypes[phase.type]) {
+                    featureTypes[phase.type] = 0;
+                }
+                featureTypes[phase.type] += phase.features.length;
+            });
+            
+            const labels = Object.keys(featureTypes);
+            const data = Object.values(featureTypes);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '# of Features',
+                        data: data,
+                        backgroundColor: [
+                            '#c4b5fd', // violet-300
+                            '#a5b4fc', // indigo-300
+                            '#93c5fd', // blue-300
+                            '#7dd3fc', // sky-300
+                            '#67e8f9'  // cyan-300
+                        ],
+                        borderColor: [
+                            '#8b5cf6', // violet-500
+                            '#6366f1', // indigo-500
+                            '#3b82f6', // blue-500
+                            '#0ea5e9', // sky-500
+                            '#06b6d4'  // cyan-500
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Feature Count by Type',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
